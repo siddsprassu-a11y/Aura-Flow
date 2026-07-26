@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Flow — Intuitive & Minimal Task Studio</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        violet: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                            950: '#1e0c38',
+                        },
+                        aura: {
+                            bg: '#0B0713',
+                            card: 'rgba(23, 15, 38, 0.65)',
+                            cardHover: 'rgba(32, 22, 53, 0.85)',
+                            border: 'rgba(139, 92, 246, 0.18)',
+                            glow: 'rgba(139, 92, 246, 0.35)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 8s ease-in-out infinite',
+                        'check-pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-12px)' },
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.8)' },
+                            '50%': { transform: 'scale(1.25)' },
+                            '100%': { transform: 'scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #07040D;
+            color: #E9E3F5;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glassmorphism */
+        .glass-panel {
+            background: rgba(20, 13, 33, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(28, 18, 46, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(139, 92, 246, 0.12);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(38, 24, 61, 0.7);
+            border-color: rgba(139, 92, 246, 0.35);
+            box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .glass-input {
+            background: rgba(15, 9, 26, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .glass-input:focus {
+            background: rgba(20, 12, 35, 0.85);
+            border-color: rgba(167, 139, 250, 0.6);
+            box-shadow: 0 0 18px rgba(139, 92, 246, 0.25);
+            outline: none;
+        }
+
+        /* Custom Violet Glow Effects */
+        .violet-glow {
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .violet-glow-lg {
+            box-shadow: 0 0 50px rgba(124, 58, 237, 0.25);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #DDD6FE 0%, #A78BFA 50%, #C4B5FD 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-bold {
+            background: linear-gradient(135deg, #FFFFFF 0%, #C4B5FD 60%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 7, 19, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.25);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.5);
+        }
+
+        /* Custom Animated Checkbox */
+        .custom-checkbox {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid rgba(167, 139, 250, 0.35);
+            border-radius: 7px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(15, 9, 26, 0.4);
+        }
+
+        .custom-checkbox:checked {
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            border-color: #f87171;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+        }
+
+        .custom-checkbox:checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #ffffff;
+            font-size: 11px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Completed task strikethrough animation & red styling */
+        .task-title {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .task-completed .task-title {
+            color: #f87171;
+            text-decoration: line-through;
+            text-decoration-color: #ef4444;
+        }
+
+        /* Modal Blur Backdrops */
+        .modal-overlay {
+            background: rgba(5, 2, 10, 0.75);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-violet-500 selection:text-white relative overflow-x-hidden">
+
+    <!-- Background Ambient Orbs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-violet-900/30 rounded-full blur-[120px] animate-pulse-slow"></div>
+        <div class="absolute top-1/3 -right-20 w-80 h-80 bg-purple-900/25 rounded-full blur-[100px] animate-float"></div>
+        <div class="absolute -bottom-20 left-1/4 w-96 h-96 bg-indigo-950/40 rounded-full blur-[140px] animate-pulse-slow"></div>
+    </div>
+
+    <!-- Celebration Canvas for Task Completion Confetti -->
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Floating Undo Action Toast -->
+    <div id="undoToast" class="fixed bottom-6 right-6 z-50 glass-panel border border-violet-500/40 rounded-2xl px-4 py-3 shadow-2xl flex items-center space-x-4 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
+        <div class="flex items-center space-x-2 text-xs font-medium text-violet-100">
+            <i class="fa-solid fa-clock-rotate-left text-violet-400"></i>
+            <span id="toastMessage">Action performed</span>
+        </div>
+        <button onclick="app.undo()" class="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-md transition-all flex items-center space-x-1.5 hover:scale-105">
+            <i class="fa-solid fa-rotate-left text-[10px]"></i>
+            <span>Undo</span>
+        </button>
+    </div>
+
+    <!-- Top Header / App Bar -->
+    <header class="w-full glass-panel sticky top-0 z-30 border-b border-violet-900/20 px-4 sm:px-8 py-3.5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.switchView('inbox')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 via-purple-600 to-indigo-500 flex items-center justify-center shadow-lg violet-glow">
+                    <i class="fa-solid fa-sparkles text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-gradient-bold">Aura Flow</h1>
+                    <p class="text-[10px] text-violet-300/60 uppercase tracking-widest font-semibold">Mindful Task Studio</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Streak Badge -->
+                <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-violet-950/50 border border-violet-500/20 text-xs font-medium text-violet-300" title="Daily Completion Streak">
+                    <i class="fa-solid fa-fire text-amber-400 animate-pulse"></i>
+                    <span id="streakCount">3 Day Streak</span>
+                </div>
+
+                <!-- Undo Button Header Control -->
+                <button id="undoHeaderBtn" onclick="app.undo()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl glass-card text-violet-300 hover:text-white transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium" title="Undo Last Operation (Ctrl+Z)" disabled>
+                    <i class="fa-solid fa-rotate-left text-xs"></i>
+                    <span class="hidden sm:inline">Undo</span>
+                </button>
+
+                <!-- Focus Mode Button -->
+                <button onclick="app.openFocusMode()" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-violet-900/30 hover:bg-violet-800/40 border border-violet-500/30 text-xs font-medium text-violet-200 transition-all hover:scale-105">
+                    <i class="fa-solid fa-brain text-violet-400"></i>
+                    <span class="hidden md:inline">Zen Focus</span>
+                </button>
+
+                <!-- Stats Button -->
+                <button onclick="app.openStatsModal()" class="p-2.5 rounded-xl glass-card text-violet-300 hover:text-white transition-all hover:scale-105" title="Productivity Insights">
+                    <i class="fa-solid fa-chart-pie text-sm"></i>
+                </button>
+
+                <!-- Audio Toggle -->
+                <button id="soundToggleBtn" onclick="app.toggleSound()" class="p-2.5 rounded-xl glass-card text-violet-300 hover:text-white transition-all hover:scale-105" title="Toggle Sound Feedback">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-sm"></i>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="app.toggleMobileSidebar()" class="lg:hidden p-2.5 rounded-xl glass-card text-violet-300">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout Container -->
+    <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 flex gap-8">
+
+        <!-- Sidebar Navigation (Desktop & Mobile Drawer) -->
+        <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 z-40 w-64 lg:w-60 bg-aura-bg lg:bg-transparent p-5 lg:p-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between shrink-0 glass-panel lg:glass-none lg:border-none">
+            <div class="space-y-6">
+                <!-- Mobile Close Header -->
+                <div class="flex lg:hidden items-center justify-between pb-4 border-b border-violet-900/30">
+                    <span class="text-sm font-semibold text-violet-200">Navigation</span>
+                    <button onclick="app.toggleMobileSidebar()" class="text-violet-400 hover:text-white">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Views Navigation -->
+                <div class="space-y-1">
+                    <div class="px-3 text-[11px] font-semibold text-violet-400/60 uppercase tracking-wider mb-2">Views</div>
+                    <button onclick="app.switchView('inbox')" id="nav-inbox" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-violet-100 bg-violet-600/20 border border-violet-500/30">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-inbox text-violet-400"></i>
+                            <span>Inbox</span>
+                        </div>
+                        <span id="count-inbox" class="text-xs px-2 py-0.5 rounded-full bg-violet-950/80 text-violet-300">0</span>
+                    </button>
+
+                    <button onclick="app.switchView('today')" id="nav-today" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-violet-300/80 hover:bg-violet-900/20 hover:text-violet-100">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-calendar-day text-emerald-400"></i>
+                            <span>Today</span>
+                        </div>
+                        <span id="count-today" class="text-xs px-2 py-0.5 rounded-full bg-violet-950/80 text-violet-300">0</span>
+                    </button>
+
+                    <button onclick="app.switchView('upcoming')" id="nav-upcoming" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-violet-300/80 hover:bg-violet-900/20 hover:text-violet-100">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-calendar-week text-indigo-400"></i>
+                            <span>Upcoming</span>
+                        </div>
+                        <span id="count-upcoming" class="text-xs px-2 py-0.5 rounded-full bg-violet-950/80 text-violet-300">0</span>
+                    </button>
+
+                    <button onclick="app.switchView('starred')" id="nav-starred" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-violet-300/80 hover:bg-violet-900/20 hover:text-violet-100">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-star text-amber-400"></i>
+                            <span>High Priority</span>
+                        </div>
+                        <span id="count-starred" class="text-xs px-2 py-0.5 rounded-full bg-violet-950/80 text-violet-300">0</span>
+                    </button>
+
+                    <button onclick="app.switchView('completed')" id="nav-completed" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-violet-300/80 hover:bg-violet-900/20 hover:text-violet-100">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-circle-check text-rose-400"></i>
+                            <span>Completed Filter</span>
+                        </div>
+                        <span id="count-completed" class="text-xs px-2 py-0.5 rounded-full bg-violet-950/80 text-rose-300">0</span>
+                    </button>
+                </div>
+
+                <!-- Categories / Tag Filters -->
+                <div class="space-y-1 pt-2">
+                    <div class="flex items-center justify-between px-3 mb-2">
+                        <span class="text-[11px] font-semibold text-violet-400/60 uppercase tracking-wider">Categories</span>
+                        <button onclick="app.promptAddCategory()" class="text-violet-400 hover:text-white text-xs" title="New Category">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="categoryNavList" class="space-y-1">
+                        <!-- Dynamic Categories Rendered Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Progress Quick Widget -->
+            <div class="pt-6 border-t border-violet-900/20">
+                <div class="glass-card p-3.5 rounded-2xl flex items-center space-x-3">
+                    <div class="relative w-11 h-11 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-violet-950" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="sidebarProgressCircle" class="text-violet-500 transition-all duration-700 ease-out" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="sidebarProgressPercent" class="absolute text-[10px] font-bold text-violet-200">0%</span>
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold text-violet-100">Daily Goal</div>
+                        <div id="sidebarProgressText" class="text-[11px] text-violet-300/70">0 of 0 completed</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="flex-1 min-w-0 max-w-5xl mx-auto space-y-6">
+
+            <!-- Hero Greeting & Mindful Banner -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-7 relative overflow-hidden violet-glow border border-violet-500/20">
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2 text-xs font-medium text-violet-300/80 mb-1">
+                            <i class="fa-regular fa-clock"></i>
+                            <span id="liveClockDisplay">Loading time...</span>
+                        </div>
+                        <h2 id="greetingHeading" class="text-2xl sm:text-3xl font-extrabold text-gradient">Good Day, Creator ✨</h2>
+                        <p id="quoteDisplay" class="text-xs sm:text-sm text-violet-200/70 mt-1 max-w-lg leading-relaxed">
+                            "Focus on being productive instead of busy."
+                        </p>
+                    </div>
+
+                    <!-- Quick Action Chips -->
+                    <div class="flex items-center gap-2 self-start md:self-auto">
+                        <button onclick="app.toggleProgressHub()" class="px-3 py-1.5 rounded-xl bg-violet-900/40 hover:bg-violet-800/50 border border-violet-500/30 text-xs font-medium text-violet-200 transition-all flex items-center space-x-1.5">
+                            <i class="fa-solid fa-chart-pie text-violet-400"></i>
+                            <span id="toggleProgressHubBtnText">Progress Visuals</span>
+                        </button>
+
+                        <button onclick="app.clearCompletedTasks()" class="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-xs font-medium text-rose-200 transition-all flex items-center space-x-1.5" title="Clear completed items">
+                            <i class="fa-solid fa-broom text-rose-400"></i>
+                            <span>Cleanup Completed</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visually Appealing Task Progress Visual Hub -->
+            <div id="progressHubCard" class="glass-panel rounded-3xl p-5 sm:p-6 border border-violet-500/20 transition-all duration-300">
+                <!-- Visual Hub Header -->
+                <div class="flex items-center justify-between mb-5 pb-3 border-b border-violet-900/30">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shadow-md">
+                            <i class="fa-solid fa-chart-line text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-violet-100">Productivity Progress Dashboard</h3>
+                            <p class="text-xs text-violet-300/60">Live visual breakdown of task completion velocity</p>
+                        </div>
+                    </div>
+                    <span id="productivityStatusBadge" class="px-3 py-1 rounded-full bg-violet-950/80 border border-violet-500/30 text-xs font-semibold text-violet-300 flex items-center space-x-1.5 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span id="productivityStatusText">Calculating flow...</span>
+                    </span>
+                </div>
+
+                <!-- Main Chart & Progress Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    
+                    <!-- Left: Circular Progress Gauge & Summary Stat Grid -->
+                    <div class="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col items-center justify-center gap-5 p-4 rounded-2xl glass-card border border-violet-500/15">
+                        <!-- Circular Progress Gauge -->
+                        <div class="relative w-36 h-36 flex items-center justify-center shrink-0">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <path class="text-violet-950/80" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path id="hubCircularProgress" class="text-violet-500 transition-all duration-700 ease-out" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center text-center">
+                                <span id="hubOverallPercent" class="text-2xl font-extrabold text-gradient-bold tracking-tight">0%</span>
+                                <span class="text-[10px] uppercase font-bold text-violet-300/60 tracking-wider">Completed</span>
+                            </div>
+                        </div>
+
+                        <!-- Quick Visual Metric Chips -->
+                        <div class="grid grid-cols-2 gap-2.5 w-full">
+                            <div class="p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 text-center">
+                                <div class="text-[10px] font-semibold text-rose-400 uppercase tracking-wider mb-0.5">Completed</div>
+                                <div id="hubCountDone" class="text-lg font-extrabold text-rose-300">0</div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-violet-950/40 border border-violet-500/20 text-center">
+                                <div class="text-[10px] font-semibold text-violet-300/70 uppercase tracking-wider mb-0.5">Pending</div>
+                                <div id="hubCountPending" class="text-lg font-extrabold text-violet-200">0</div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-amber-950/20 border border-amber-500/20 text-center">
+                                <div class="text-[10px] font-semibold text-amber-400 uppercase tracking-wider mb-0.5">High Priority</div>
+                                <div id="hubCountHigh" class="text-lg font-extrabold text-amber-300">0</div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-violet-950/40 border border-violet-500/20 text-center">
+                                <div class="text-[10px] font-semibold text-violet-300/70 uppercase tracking-wider mb-0.5">Total Tasks</div>
+                                <div id="hubCountTotal" class="text-lg font-extrabold text-violet-100">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Category Progress Bars Breakdown -->
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="flex items-center justify-between text-xs font-semibold text-violet-300/80 px-1">
+                            <span>Category Progress Fills</span>
+                            <span id="hubCategorySummaryText" class="text-[11px] text-violet-400/60">6 Categories Active</span>
+                        </div>
+
+                        <!-- Dynamic Category Progress Bars Container -->
+                        <div id="categoryProgressBarsList" class="space-y-2.5">
+                            <!-- Rendered dynamically by JavaScript -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Overall Multi-Segment Glowing Progress Bar -->
+                <div class="mt-5 pt-4 border-t border-violet-900/20">
+                    <div class="flex items-center justify-between text-xs font-medium text-violet-300/80 mb-1.5">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-bars-progress text-violet-400"></i>
+                            <span>Overall Goal Completion Bar</span>
+                        </span>
+                        <span id="hubProgressBarRatio" class="font-bold text-violet-200">0 of 0 tasks done</span>
+                    </div>
+                    <div class="w-full h-3 rounded-full bg-violet-950/80 border border-violet-500/20 overflow-hidden p-0.5 relative">
+                        <div id="hubOverallProgressBar" class="h-full rounded-full bg-gradient-to-r from-violet-600 via-purple-500 to-indigo-400 transition-all duration-700 ease-out shadow-lg violet-glow" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horizontal Category Navigation Tabs Bar -->
+            <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar border-b border-violet-900/30 text-xs font-medium scroll-smooth">
+                <button onclick="app.switchView('all_categories')" id="tab-all_categories" class="category-tab shrink-0 px-4 py-2 rounded-xl border border-violet-500/30 bg-violet-600/30 text-violet-100 flex items-center space-x-2 transition-all">
+                    <i class="fa-solid fa-grip-vertical text-violet-400"></i>
+                    <span>All Categories</span>
+                </button>
+                <div class="h-4 w-[1px] bg-violet-800/40 shrink-0 mx-1"></div>
+                <div id="categoryTabsContainer" class="flex items-center space-x-2 shrink-0">
+                    <!-- Dynamic category pills generated here -->
+                </div>
+            </div>
+
+            <!-- Quick Task Creation Bar -->
+            <div class="glass-panel rounded-2xl p-2 sm:p-2.5 transition-all focus-within:ring-2 ring-violet-500/50">
+                <form id="addTaskForm" onsubmit="app.handleAddTask(event)" class="space-y-2">
+                    <div class="flex items-center space-x-3 px-3 py-1">
+                        <div class="text-violet-400">
+                            <i class="fa-solid fa-plus-circle text-xl"></i>
+                        </div>
+                        <input type="text" id="newTaskInput" placeholder="What would you like to accomplish? (Press Enter)" class="w-full bg-transparent border-none text-violet-100 placeholder-violet-300/40 focus:outline-none text-sm sm:text-base font-medium">
+                        <button type="submit" class="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold text-xs shadow-lg shadow-violet-700/30 transition-all hover:scale-105 active:scale-95 shrink-0 flex items-center space-x-1.5">
+                            <span>Add Task</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+
+                    <!-- Task Quick Context Bar -->
+                    <div class="flex flex-wrap items-center gap-2 px-3 pt-1 pb-1 border-t border-violet-900/20 text-xs">
+                        <!-- Category Selector -->
+                        <select id="newTaskCategory" class="glass-input rounded-lg px-2.5 py-1 text-violet-200 text-xs cursor-pointer focus:outline-none">
+                            <!-- Dynamic Categories -->
+                        </select>
+
+                        <!-- Priority Selector -->
+                        <select id="newTaskPriority" class="glass-input rounded-lg px-2.5 py-1 text-violet-200 text-xs cursor-pointer focus:outline-none">
+                            <option value="low" class="bg-violet-950 text-violet-200">🟢 Low Priority</option>
+                            <option value="medium" selected class="bg-violet-950 text-amber-200">🟡 Medium Priority</option>
+                            <option value="high" class="bg-violet-950 text-rose-200">🔴 High Priority</option>
+                        </select>
+
+                        <!-- Due Date Input -->
+                        <input type="date" id="newTaskDueDate" class="glass-input rounded-lg px-2 py-1 text-violet-200 text-xs cursor-pointer focus:outline-none">
+
+                        <span class="text-[11px] text-violet-400/50 ml-auto hidden sm:inline">Tip: Press Ctrl+Z anytime to undo</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Filter & Search Toolbar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <!-- Search Box -->
+                <div class="relative flex-1 max-w-xs">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-violet-400/60 text-xs"></i>
+                    <input type="text" id="searchInput" oninput="app.handleSearch()" placeholder="Search tasks..." class="w-full glass-input rounded-xl pl-9 pr-8 py-1.5 text-xs text-violet-100 placeholder-violet-400/40">
+                    <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-violet-400 hover:text-white text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Sort & Filter Controls -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-violet-400/60 font-medium">Sort by:</span>
+                    <select id="sortBySelect" onchange="app.handleSortChange()" class="glass-input rounded-xl px-3 py-1.5 text-xs text-violet-200 cursor-pointer focus:outline-none">
+                        <option value="created" class="bg-violet-950">Date Created</option>
+                        <option value="priority" class="bg-violet-950">Priority Level</option>
+                        <option value="dueDate" class="bg-violet-950">Due Date</option>
+                        <option value="title" class="bg-violet-950">Alphabetical</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Active View Indicator Header -->
+            <div class="flex items-center justify-between border-b border-violet-900/20 pb-2">
+                <div class="flex items-center space-x-2">
+                    <h3 id="currentViewTitle" class="text-base font-bold text-violet-100">All Categories View</h3>
+                    <span id="currentViewBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-violet-900/40 text-violet-300 font-medium border border-violet-500/20">0</span>
+                </div>
+                <div class="text-xs text-violet-400/70" id="taskCompletionCounter">
+                    0 of 0 Completed
+                </div>
+            </div>
+
+            <!-- Task Container Area (Supports Section Grid & Single List Views) -->
+            <div id="taskList" class="space-y-6 min-h-[250px]">
+                <!-- Tasks and category sections will be dynamically rendered here -->
+            </div>
+
+            <!-- Empty State Illustration -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-12 px-4 text-center glass-card rounded-3xl border border-dashed border-violet-500/20">
+                <div class="w-16 h-16 rounded-2xl bg-violet-950/60 border border-violet-500/20 flex items-center justify-center text-violet-400 mb-3 text-2xl violet-glow">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                </div>
+                <h4 class="text-base font-semibold text-violet-100">All clear in this view!</h4>
+                <p class="text-xs text-violet-300/60 max-w-sm mt-1">Enjoy the peaceful moment or add a new task above to get into your creative flow.</p>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Task Detail Side Drawer / Modal -->
+    <div id="detailDrawer" class="fixed inset-0 z-50 modal-overlay hidden flex justify-end transition-opacity duration-300">
+        <div class="w-full max-w-md bg-aura-bg glass-panel h-full border-l border-violet-500/20 p-6 flex flex-col justify-between overflow-y-auto">
+            <div class="space-y-6">
+                <!-- Drawer Header -->
+                <div class="flex items-center justify-between border-b border-violet-900/30 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-violet-400"></i>
+                        <span class="text-sm font-bold text-violet-100">Task Details</span>
+                    </div>
+                    <button onclick="app.closeDetailDrawer()" class="p-1.5 rounded-lg text-violet-400 hover:text-white hover:bg-violet-900/30">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Drawer Content Form -->
+                <form id="editTaskForm" onsubmit="app.saveTaskDetails(event)" class="space-y-5">
+                    <!-- Title Input -->
+                    <div>
+                        <label class="block text-xs font-semibold text-violet-300/80 mb-1">Task Title</label>
+                        <input type="text" id="detailTitle" class="w-full glass-input rounded-xl px-3.5 py-2 text-sm text-violet-100 font-medium">
+                    </div>
+
+                    <!-- Category & Priority Grid -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-violet-300/80 mb-1">Category</label>
+                            <select id="detailCategory" class="w-full glass-input rounded-xl px-3 py-2 text-xs text-violet-100">
+                                <!-- Dynamic -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-violet-300/80 mb-1">Priority</label>
+                            <select id="detailPriority" class="w-full glass-input rounded-xl px-3 py-2 text-xs text-violet-100">
+                                <option value="low">Low Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="high">High Priority</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Due Date Input -->
+                    <div>
+                        <label class="block text-xs font-semibold text-violet-300/80 mb-1">Due Date</label>
+                        <input type="date" id="detailDueDate" class="w-full glass-input rounded-xl px-3.5 py-2 text-xs text-violet-100">
+                    </div>
+
+                    <!-- Subtasks Section -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold text-violet-300/80">Subtasks Checklists</label>
+                            <span id="subtaskProgressText" class="text-[11px] text-violet-400">0/0</span>
+                        </div>
+                        <div id="subtasksList" class="space-y-2 mb-2 max-h-40 overflow-y-auto pr-1">
+                            <!-- Dynamic Subtasks -->
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="newSubtaskInput" placeholder="Add subtask step..." class="flex-1 glass-input rounded-xl px-3 py-1.5 text-xs text-violet-100 placeholder-violet-400/40">
+                            <button type="button" onclick="app.handleAddSubtask()" class="px-3 py-1.5 rounded-xl bg-violet-600/30 hover:bg-violet-600/50 text-violet-200 border border-violet-500/30 text-xs font-medium">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Task Notes -->
+                    <div>
+                        <label class="block text-xs font-semibold text-violet-300/80 mb-1">Notes & Thoughts</label>
+                        <textarea id="detailNotes" rows="4" placeholder="Add additional context, links or sub-goals..." class="w-full glass-input rounded-xl px-3.5 py-2.5 text-xs text-violet-100 placeholder-violet-400/40 resize-none"></textarea>
+                    </div>
+
+                    <!-- Action Launch Focus Mode -->
+                    <button type="button" onclick="app.launchTaskFocus()" class="w-full py-2.5 rounded-xl bg-violet-900/40 hover:bg-violet-800/50 border border-violet-500/30 text-violet-200 text-xs font-semibold flex items-center justify-center space-x-2 transition-all">
+                        <i class="fa-solid fa-bullseye text-violet-400"></i>
+                        <span>Start Focused Pomodoro Session</span>
+                    </button>
+
+                    <!-- Save Button -->
+                    <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-violet-700/30">
+                        Save Changes
+                    </button>
+                </form>
+            </div>
+
+            <!-- Drawer Bottom Actions -->
+            <div class="pt-4 border-t border-violet-900/30 flex items-center justify-between">
+                <button onclick="app.deleteCurrentTask()" class="text-rose-400 hover:text-rose-300 text-xs font-medium flex items-center space-x-1.5">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Delete Task</span>
+                </button>
+                <span id="detailCreatedAt" class="text-[10px] text-violet-400/50">Created recently</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zen Ambient Focus Mode Modal Overlay -->
+    <div id="focusModal" class="fixed inset-0 z-50 modal-overlay hidden flex items-center justify-center p-4">
+        <div class="max-w-md w-full glass-panel rounded-3xl p-8 border border-violet-500/30 text-center relative overflow-hidden violet-glow-lg">
+            <button onclick="app.closeFocusMode()" class="absolute top-4 right-4 text-violet-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-violet-950/80 border border-violet-500/30 text-xs text-violet-300 mb-6">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Deep Ambient Flow</span>
+            </div>
+
+            <h3 id="focusTaskTitle" class="text-lg font-bold text-violet-100 mb-6 max-w-xs mx-auto truncate">
+                Focused Session
+            </h3>
+
+            <!-- Timer Circle Display -->
+            <div class="relative w-48 h-48 mx-auto mb-8 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-violet-950/80" stroke-width="2.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path id="focusTimerCircle" class="text-violet-500 transition-all duration-1000 ease-linear" stroke-dasharray="100, 100" stroke-dashoffset="0" stroke-width="2.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute flex flex-col items-center">
+                    <span id="focusTimeDisplay" class="text-4xl font-extrabold text-gradient-bold tracking-tight">25:00</span>
+                    <span id="focusModeLabel" class="text-[11px] text-violet-300/60 uppercase tracking-widest mt-1">Pomodoro</span>
+                </div>
+            </div>
+
+            <!-- Focus Controls -->
+            <div class="flex items-center justify-center space-x-4 mb-6">
+                <button onclick="app.toggleFocusTimer()" id="focusStartBtn" class="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold text-xs shadow-lg shadow-violet-700/40 transition-all hover:scale-105 flex items-center space-x-2">
+                    <i id="focusStartIcon" class="fa-solid fa-play"></i>
+                    <span id="focusStartText">Start Focus</span>
+                </button>
+
+                <button onclick="app.resetFocusTimer()" class="p-2.5 rounded-2xl glass-card text-violet-300 hover:text-white" title="Reset Timer">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+
+                <button onclick="app.toggleFocusSound()" id="focusSoundBtn" class="p-2.5 rounded-2xl glass-card text-violet-300 hover:text-white" title="Toggle Ambient Violet Noise">
+                    <i class="fa-solid fa-music"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-violet-300/50">Immerse yourself in work with calm, distraction-free atmosphere.</p>
+        </div>
+    </div>
+
+    <!-- Insights & Stats Modal -->
+    <div id="statsModal" class="fixed inset-0 z-50 modal-overlay hidden flex items-center justify-center p-4">
+        <div class="max-w-lg w-full glass-panel rounded-3xl p-6 sm:p-8 border border-violet-500/30 relative">
+            <button onclick="app.closeStatsModal()" class="absolute top-4 right-4 text-violet-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="p-3 rounded-2xl bg-violet-900/40 text-violet-300 border border-violet-500/30">
+                    <i class="fa-solid fa-chart-line text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-violet-100">Productivity Insights</h3>
+                    <p class="text-xs text-violet-300/60">Your mindful progress stats</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-violet-300/70 block mb-1">Total Completed</span>
+                    <span id="statTotalCompleted" class="text-2xl font-bold text-gradient-bold">0</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-violet-300/70 block mb-1">Completion Rate</span>
+                    <span id="statCompletionRate" class="text-2xl font-bold text-emerald-400">0%</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-violet-300/70 block mb-1">Current Streak</span>
+                    <span id="statStreak" class="text-2xl font-bold text-amber-400">3 Days</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-violet-300/70 block mb-1">Active Tasks</span>
+                    <span id="statActiveTasks" class="text-2xl font-bold text-violet-300">0</span>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl">
+                <h4 class="text-xs font-semibold text-violet-200 mb-3">Tasks Breakdown by Category</h4>
+                <div id="categoryStatsList" class="space-y-2">
+                    <!-- Dynamic Stats -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-violet-900/20 py-4 px-4 text-center text-xs text-violet-400/40">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>Aura Flow — Mindful & Modern Productivity</span>
+            <div class="flex items-center space-x-4">
+                <span>Designed for Focus</span>
+                <span>•</span>
+                <span id="footerTaskSummary">0 Pending Tasks</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        class AuraTodoApp {
+            constructor() {
+                this.tasks = [];
+                // History stack for Undo feature
+                this.historyStack = [];
+                this.toastTimeout = null;
+
+                // Structured Categories tailored for young professionals & students
+                this.categories = [
+                    { id: 'daily', name: 'Daily Tasks', color: '#A78BFA', icon: 'fa-calendar-check' },
+                    { id: 'personal', name: 'Personal', color: '#EC4899', icon: 'fa-user' },
+                    { id: 'work', name: 'Work', color: '#8B5CF6', icon: 'fa-briefcase' },
+                    { id: 'study', name: 'Study', color: '#3B82F6', icon: 'fa-graduation-cap' },
+                    { id: 'finance', name: 'Finance', color: '#10B981', icon: 'fa-wallet' },
+                    { id: 'health', name: 'Health', color: '#F43F5E', icon: 'fa-heart-pulse' }
+                ];
+                this.currentView = 'all_categories';
+                this.searchQuery = '';
+                this.sortBy = 'created';
+                this.activeDetailTaskId = null;
+                this.soundEnabled = true;
+                this.isProgressHubVisible = true;
+
+                // Focus Timer State
+                this.focusTimer = null;
+                this.focusSecondsLeft = 25 * 60;
+                this.focusTotalSeconds = 25 * 60;
+                this.isFocusRunning = false;
+                this.focusAudioOscillator = null;
+                this.isFocusSoundOn = false;
+
+                // Web Audio Context
+                this.audioCtx = null;
+
+                this.init();
+            }
+
+            init() {
+                this.loadFromStorage();
+                this.setupEventListeners();
+                this.startLiveClock();
+                this.renderCategoriesNav();
+                this.render();
+                this.initConfettiCanvas();
+                this.updateUndoHeaderBtn();
+
+                if (this.historyStack.length > 0) {
+                    this.updateUndoHeaderBtn();
+                }
+            }
+
+            // Undo Stack Management
+            recordState(actionName = 'Operation') {
+                this.historyStack.push({
+                    tasks: JSON.parse(JSON.stringify(this.tasks)),
+                    categories: JSON.parse(JSON.stringify(this.categories)),
+                    actionName: actionName
+                });
+                if (this.historyStack.length > 25) {
+                    this.historyStack.shift();
+                }
+                this.updateUndoHeaderBtn();
+                this.showUndoToast(`Performed: ${actionName}`);
+            }
+
+            undo() {
+                if (this.historyStack.length === 0) return;
+
+                const lastState = this.historyStack.pop();
+                this.tasks = lastState.tasks;
+                this.categories = lastState.categories;
+                this.saveToStorage();
+                this.renderCategoriesNav();
+                this.render();
+                this.playClickSound();
+                this.updateUndoHeaderBtn();
+                this.hideUndoToast();
+                
+                this.showBriefMessage(`Undid: ${lastState.actionName}`);
+            }
+
+            updateUndoHeaderBtn() {
+                const btn = document.getElementById('undoHeaderBtn');
+                if (btn) {
+                    btn.disabled = this.historyStack.length === 0;
+                }
+            }
+
+            showUndoToast(message) {
+                const toast = document.getElementById('undoToast');
+                const msgEl = document.getElementById('toastMessage');
+                if (!toast || !msgEl) return;
+
+                msgEl.innerText = message;
+                toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+                toast.classList.add('translate-y-0', 'opacity-100');
+
+                if (this.toastTimeout) clearTimeout(this.toastTimeout);
+                this.toastTimeout = setTimeout(() => {
+                    this.hideUndoToast();
+                }, 5000);
+            }
+
+            hideUndoToast() {
+                const toast = document.getElementById('undoToast');
+                if (toast) {
+                    toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                }
+            }
+
+            showBriefMessage(msg) {
+                const msgEl = document.getElementById('toastMessage');
+                const toast = document.getElementById('undoToast');
+                if (!toast || !msgEl) return;
+
+                msgEl.innerText = msg;
+                toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+                toast.classList.add('translate-y-0', 'opacity-100');
+
+                if (this.toastTimeout) clearTimeout(this.toastTimeout);
+                this.toastTimeout = setTimeout(() => {
+                    this.hideUndoToast();
+                }, 3000);
+            }
+
+            toggleProgressHub() {
+                this.isProgressHubVisible = !this.isProgressHubVisible;
+                const hubCard = document.getElementById('progressHubCard');
+                const btnText = document.getElementById('toggleProgressHubBtnText');
+                if (hubCard) {
+                    if (this.isProgressHubVisible) {
+                        hubCard.classList.remove('hidden');
+                        if (btnText) btnText.innerText = 'Hide Progress';
+                    } else {
+                        hubCard.classList.add('hidden');
+                        if (btnText) btnText.innerText = 'Progress Visuals';
+                    }
+                }
+                this.playClickSound();
+            }
+
+            // Web Audio Synthesis for Feedback
+            initAudio() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.audioCtx = new AudioContext();
+                    }
+                }
+                if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            }
+
+            playCompleteSound() {
+                if (!this.soundEnabled) return;
+                try {
+                    this.initAudio();
+                    if (!this.audioCtx) return;
+
+                    const now = this.audioCtx.currentTime;
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } catch (e) {
+                    console.error('Audio synthesis error', e);
+                }
+            }
+
+            playClickSound() {
+                if (!this.soundEnabled) return;
+                try {
+                    this.initAudio();
+                    if (!this.audioCtx) return;
+
+                    const now = this.audioCtx.currentTime;
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(150, now + 0.05);
+
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } catch (e) {}
+            }
+
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                const icon = document.getElementById('soundIcon');
+                if (this.soundEnabled) {
+                    icon.className = 'fa-solid fa-volume-high text-sm';
+                    this.playClickSound();
+                } else {
+                    icon.className = 'fa-solid fa-volume-xmark text-sm';
+                }
+            }
+
+            loadFromStorage() {
+                const storedTasks = localStorage.getItem('aura_flow_tasks');
+                const storedCategories = localStorage.getItem('aura_flow_categories');
+
+                if (storedTasks) {
+                    this.tasks = JSON.parse(storedTasks);
+                } else {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    this.tasks = [
+                        {
+                            id: 'task-1',
+                            title: 'Complete 25 minutes of morning meditation & planning',
+                            category: 'daily',
+                            priority: 'high',
+                            dueDate: todayStr,
+                            completed: false,
+                            notes: 'Start the day clear and mindful.',
+                            subtasks: [],
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'task-2',
+                            title: 'Design modern dashboard layout wireframes',
+                            category: 'work',
+                            priority: 'high',
+                            dueDate: todayStr,
+                            completed: false,
+                            notes: 'Focus on violet glassmorphic aesthetic.',
+                            subtasks: [
+                                { id: 'st-1', title: 'Color palette exploration', completed: true },
+                                { id: 'st-2', title: 'Interactive prototype', completed: false }
+                            ],
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'task-3',
+                            title: 'Review Chapter 5 of Machine Learning textbook',
+                            category: 'study',
+                            priority: 'medium',
+                            dueDate: todayStr,
+                            completed: false,
+                            notes: 'Focus on neural network optimization techniques.',
+                            subtasks: [],
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'task-4',
+                            title: 'Review monthly budget and investment portfolio',
+                            category: 'finance',
+                            priority: 'medium',
+                            dueDate: '',
+                            completed: false,
+                            notes: 'Track savings rate and recurring subscriptions.',
+                            subtasks: [],
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'task-5',
+                            title: '45-minute evening workout & stretching session',
+                            category: 'health',
+                            priority: 'medium',
+                            dueDate: todayStr,
+                            completed: false,
+                            notes: '',
+                            subtasks: [],
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'task-6',
+                            title: 'Organize personal bookshelf & reading list',
+                            category: 'personal',
+                            priority: 'low',
+                            dueDate: '',
+                            completed: true,
+                            notes: '',
+                            subtasks: [],
+                            createdAt: new Date().toISOString()
+                        }
+                    ];
+                    this.saveToStorage();
+                }
+
+                if (storedCategories) {
+                    this.categories = JSON.parse(storedCategories);
+                }
+            }
+
+            saveToStorage() {
+                localStorage.setItem('aura_flow_tasks', JSON.stringify(this.tasks));
+                localStorage.setItem('aura_flow_categories', JSON.stringify(this.categories));
+            }
+
+            handleAddTask(e, categoryOverride = null) {
+                if (e) e.preventDefault();
+                const input = e ? document.getElementById('newTaskInput') : null;
+                const title = input ? input.value.trim() : '';
+                if (!title) return;
+
+                this.recordState(`Added Task: "${title.slice(0, 20)}..."`);
+
+                const priority = document.getElementById('newTaskPriority').value;
+                let category = categoryOverride || document.getElementById('newTaskCategory').value || 'daily';
+                if (this.categories.some(c => c.id === this.currentView)) {
+                    category = this.currentView;
+                }
+                const dueDate = document.getElementById('newTaskDueDate').value;
+
+                const newTask = {
+                    id: 'task-' + Date.now(),
+                    title: title,
+                    category: category,
+                    priority: priority,
+                    dueDate: dueDate,
+                    completed: false,
+                    notes: '',
+                    subtasks: [],
+                    createdAt: new Date().toISOString()
+                };
+
+                this.tasks.unshift(newTask);
+                this.saveToStorage();
+                if (input) input.value = '';
+                this.playClickSound();
+                this.render();
+            }
+
+            handleInlineAddTask(categoryId) {
+                const inputEl = document.getElementById(`inline-input-${categoryId}`);
+                if (!inputEl) return;
+                const title = inputEl.value.trim();
+                if (!title) return;
+
+                this.recordState(`Added Task: "${title.slice(0, 20)}..."`);
+
+                const newTask = {
+                    id: 'task-' + Date.now(),
+                    title: title,
+                    category: categoryId,
+                    priority: 'medium',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    completed: false,
+                    notes: '',
+                    subtasks: [],
+                    createdAt: new Date().toISOString()
+                };
+
+                this.tasks.unshift(newTask);
+                this.saveToStorage();
+                inputEl.value = '';
+                this.playClickSound();
+                this.render();
+            }
+
+            toggleTaskCompleted(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    this.recordState(task.completed ? `Uncompleted Task` : `Completed Task`);
+                    task.completed = !task.completed;
+                    if (task.completed) {
+                        this.playCompleteSound();
+                        this.triggerConfetti();
+                    } else {
+                        this.playClickSound();
+                    }
+                    this.saveToStorage();
+                    this.render();
+                }
+            }
+
+            deleteTask(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    this.recordState(`Deleted Task: "${task.title.slice(0, 20)}..."`);
+                    this.tasks = this.tasks.filter(t => t.id !== taskId);
+                    this.saveToStorage();
+                    this.playClickSound();
+                    this.render();
+                }
+            }
+
+            clearCompletedTasks() {
+                const completedTasks = this.tasks.filter(t => t.completed);
+                if (completedTasks.length > 0) {
+                    this.recordState(`Cleared ${completedTasks.length} Completed Task(s)`);
+                    this.tasks = this.tasks.filter(t => !t.completed);
+                    this.saveToStorage();
+                    this.playClickSound();
+                    this.render();
+                }
+            }
+
+            openDetailDrawer(taskId) {
+                this.activeDetailTaskId = taskId;
+                const task = this.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                document.getElementById('detailTitle').value = task.title;
+                document.getElementById('detailCategory').value = task.category;
+                document.getElementById('detailPriority').value = task.priority;
+                document.getElementById('detailDueDate').value = task.dueDate || '';
+                document.getElementById('detailNotes').value = task.notes || '';
+
+                const dateStr = new Date(task.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                document.getElementById('detailCreatedAt').innerText = 'Created on ' + dateStr;
+
+                this.renderSubtasksList(task);
+
+                const drawer = document.getElementById('detailDrawer');
+                drawer.classList.remove('hidden');
+                this.playClickSound();
+            }
+
+            closeDetailDrawer() {
+                document.getElementById('detailDrawer').classList.add('hidden');
+                this.activeDetailTaskId = null;
+            }
+
+            saveTaskDetails(e) {
+                e.preventDefault();
+                if (!this.activeDetailTaskId) return;
+
+                const task = this.tasks.find(t => t.id === this.activeDetailTaskId);
+                if (task) {
+                    this.recordState(`Updated Task Details`);
+
+                    task.title = document.getElementById('detailTitle').value.trim() || task.title;
+                    task.category = document.getElementById('detailCategory').value;
+                    task.priority = document.getElementById('detailPriority').value;
+                    task.dueDate = document.getElementById('detailDueDate').value;
+                    task.notes = document.getElementById('detailNotes').value;
+
+                    this.saveToStorage();
+                    this.render();
+                    this.closeDetailDrawer();
+                    this.playClickSound();
+                }
+            }
+
+            deleteCurrentTask() {
+                if (this.activeDetailTaskId) {
+                    this.deleteTask(this.activeDetailTaskId);
+                    this.closeDetailDrawer();
+                }
+            }
+
+            renderSubtasksList(task) {
+                const container = document.getElementById('subtasksList');
+                container.innerHTML = '';
+
+                const completedCount = task.subtasks.filter(s => s.completed).length;
+                document.getElementById('subtaskProgressText').innerText = `${completedCount}/${task.subtasks.length}`;
+
+                task.subtasks.forEach(st => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between p-2 rounded-xl glass-input text-xs';
+                    item.innerHTML = `
+                        <div class="flex items-center space-x-2 flex-1 min-w-0">
+                            <input type="checkbox" ${st.completed ? 'checked' : ''} onchange="app.toggleSubtask('${task.id}', '${st.id}')" class="custom-checkbox">
+                            <span class="${st.completed ? 'line-through text-red-400' : 'text-violet-100'} truncate">${st.title}</span>
+                        </div>
+                        <button type="button" onclick="app.deleteSubtask('${task.id}', '${st.id}')" class="text-violet-400/60 hover:text-rose-400 ml-2">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            handleAddSubtask() {
+                if (!this.activeDetailTaskId) return;
+                const input = document.getElementById('newSubtaskInput');
+                const title = input.value.trim();
+                if (!title) return;
+
+                const task = this.tasks.find(t => t.id === this.activeDetailTaskId);
+                if (task) {
+                    this.recordState(`Added Subtask`);
+                    task.subtasks.push({
+                        id: 'st-' + Date.now(),
+                        title: title,
+                        completed: false
+                    });
+                    this.saveToStorage();
+                    this.renderSubtasksList(task);
+                    this.render();
+                    input.value = '';
+                    this.playClickSound();
+                }
+            }
+
+            toggleSubtask(taskId, subtaskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    const sub = task.subtasks.find(s => s.id === subtaskId);
+                    if (sub) {
+                        this.recordState(`Toggled Subtask`);
+                        sub.completed = !sub.completed;
+                        this.saveToStorage();
+                        this.renderSubtasksList(task);
+                        this.render();
+                        this.playClickSound();
+                    }
+                }
+            }
+
+            deleteSubtask(taskId, subtaskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    this.recordState(`Deleted Subtask`);
+                    task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+                    this.saveToStorage();
+                    this.renderSubtasksList(task);
+                    this.render();
+                    this.playClickSound();
+                }
+            }
+
+            getFilteredTasks(targetCategory = null) {
+                let filtered = [...this.tasks];
+                const todayStr = new Date().toISOString().split('T')[0];
+
+                if (this.currentView === 'completed') {
+                    filtered = filtered.filter(t => t.completed);
+                } else {
+                    // Do NOT filter out completed tasks so they remain visible in red
+                    if (targetCategory) {
+                        filtered = filtered.filter(t => t.category === targetCategory);
+                    } else if (this.currentView === 'today') {
+                        filtered = filtered.filter(t => t.dueDate === todayStr);
+                    } else if (this.currentView === 'upcoming') {
+                        filtered = filtered.filter(t => t.dueDate && t.dueDate > todayStr);
+                    } else if (this.currentView === 'starred') {
+                        filtered = filtered.filter(t => t.priority === 'high');
+                    } else if (this.currentView !== 'all_categories' && this.categories.some(c => c.id === this.currentView)) {
+                        filtered = filtered.filter(t => t.category === this.currentView);
+                    }
+                }
+
+                // Search Filter
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    filtered = filtered.filter(t => 
+                        t.title.toLowerCase().includes(q) || 
+                        (t.notes && t.notes.toLowerCase().includes(q))
+                    );
+                }
+
+                // Sorting: Uncompleted tasks at top, completed tasks at bottom, then applying sort preference
+                filtered.sort((a, b) => {
+                    if (a.completed !== b.completed) {
+                        return a.completed ? 1 : -1;
+                    }
+                    if (this.sortBy === 'priority') {
+                        const map = { high: 3, medium: 2, low: 1 };
+                        return map[b.priority] - map[a.priority];
+                    } else if (this.sortBy === 'dueDate') {
+                        if (!a.dueDate) return 1;
+                        if (!b.dueDate) return -1;
+                        return a.dueDate.localeCompare(b.dueDate);
+                    } else if (this.sortBy === 'title') {
+                        return a.title.localeCompare(b.title);
+                    } else {
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    }
+                });
+
+                return filtered;
+            }
+
+            switchView(viewId) {
+                this.currentView = viewId;
+
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('bg-violet-600/20', 'border', 'border-violet-500/30', 'text-violet-100');
+                    el.classList.add('text-violet-300/80');
+                });
+                const activeNav = document.getElementById(`nav-${viewId}`);
+                if (activeNav) {
+                    activeNav.classList.add('bg-violet-600/20', 'border', 'border-violet-500/30', 'text-violet-100');
+                }
+
+                document.querySelectorAll('.category-tab').forEach(el => {
+                    el.classList.remove('bg-violet-600/30', 'border-violet-500/30', 'text-violet-100', 'violet-glow');
+                    el.classList.add('bg-violet-950/40', 'border-violet-900/30', 'text-violet-300/70');
+                });
+                const activeTab = document.getElementById(`tab-${viewId}`);
+                if (activeTab) {
+                    activeTab.classList.remove('bg-violet-950/40', 'border-violet-900/30', 'text-violet-300/70');
+                    activeTab.classList.add('bg-violet-600/30', 'border-violet-500/30', 'text-violet-100', 'violet-glow');
+                }
+
+                const viewTitles = {
+                    all_categories: 'Structured Category Overview',
+                    inbox: 'Inbox Tasks',
+                    today: 'Today’s Tasks',
+                    upcoming: 'Upcoming Schedule',
+                    starred: 'High Priority Tasks',
+                    completed: 'Completed Filter View'
+                };
+                const catMatch = this.categories.find(c => c.id === viewId);
+                const titleText = catMatch ? `${catMatch.name} Category` : (viewTitles[viewId] || 'Task View');
+                document.getElementById('currentViewTitle').innerText = titleText;
+
+                this.playClickSound();
+                this.render();
+
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+
+            renderTaskCardHtml(task) {
+                const categoryObj = this.categories.find(c => c.id === task.category) || { name: task.category, color: '#8B5CF6' };
+                const priorityColors = {
+                    high: 'border-rose-500/30 bg-rose-500/10 text-rose-300',
+                    medium: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+                    low: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                };
+
+                const subtasksCount = task.subtasks.length;
+                const subtasksDone = task.subtasks.filter(s => s.completed).length;
+
+                return `
+                    <div class="glass-card rounded-2xl p-3.5 flex flex-col space-y-2 relative transition-all ${task.completed ? 'task-completed border-red-500/40 bg-red-950/25 shadow-sm shadow-red-950/50' : ''}">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-start space-x-3 flex-1 min-w-0">
+                                <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="app.toggleTaskCompleted('${task.id}')" class="custom-checkbox mt-1 shrink-0">
+                                <div class="flex-1 min-w-0 cursor-pointer" onclick="app.openDetailDrawer('${task.id}')">
+                                    <div class="flex items-center space-x-2">
+                                        <h4 class="task-title text-sm font-semibold leading-snug break-words ${task.completed ? 'text-red-400 line-through decoration-red-500' : 'text-violet-100'}">${task.title}</h4>
+                                        ${task.completed ? '<span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-red-500/20 border border-red-500/40 text-red-400 uppercase tracking-wider shrink-0">Completed</span>' : ''}
+                                    </div>
+                                    
+                                    <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                        <span class="text-[10px] px-2 py-0.5 rounded-md font-medium border border-violet-500/20 text-violet-200" style="background-color: ${categoryObj.color}20">
+                                            ${categoryObj.name}
+                                        </span>
+
+                                        <span class="text-[10px] px-2 py-0.5 rounded-md font-medium border ${priorityColors[task.priority]} capitalize">
+                                            ${task.priority}
+                                        </span>
+
+                                        ${task.dueDate ? `
+                                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-violet-950/60 border border-violet-500/20 text-violet-300 flex items-center space-x-1">
+                                                <i class="fa-regular fa-calendar text-[9px]"></i>
+                                                <span>${task.dueDate}</span>
+                                            </span>
+                                        ` : ''}
+
+                                        ${subtasksCount > 0 ? `
+                                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-violet-900/30 text-violet-300 flex items-center space-x-1">
+                                                <i class="fa-solid fa-list-check text-[9px]"></i>
+                                                <span>${subtasksDone}/${subtasksCount}</span>
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-1 shrink-0">
+                                <button onclick="app.openDetailDrawer('${task.id}')" class="p-1.5 rounded-lg hover:bg-violet-800/30 text-violet-300 hover:text-white transition-colors" title="Edit details">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </button>
+                                <button onclick="app.deleteTask('${task.id}')" class="p-1.5 rounded-lg hover:bg-rose-950/50 text-violet-400 hover:text-rose-400 transition-colors" title="Delete task">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            render() {
+                const taskListEl = document.getElementById('taskList');
+                const emptyStateEl = document.getElementById('emptyState');
+                taskListEl.innerHTML = '';
+
+                if (this.currentView === 'all_categories') {
+                    let totalCount = 0;
+                    const gridContainer = document.createElement('div');
+                    gridContainer.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
+
+                    this.categories.forEach(cat => {
+                        const catTasks = this.getFilteredTasks(cat.id);
+                        totalCount += catTasks.length;
+
+                        const section = document.createElement('div');
+                        section.className = 'glass-panel rounded-3xl p-5 border border-violet-500/20 flex flex-col justify-between space-y-4';
+
+                        const activeCount = catTasks.filter(t => !t.completed).length;
+                        const completedCount = catTasks.filter(t => t.completed).length;
+
+                        let tasksMarkup = '';
+                        if (catTasks.length === 0) {
+                            tasksMarkup = `
+                                <div class="py-6 text-center border border-dashed border-violet-500/15 rounded-2xl bg-violet-950/20">
+                                    <p class="text-xs text-violet-400/50">No tasks in ${cat.name}</p>
+                                </div>
+                            `;
+                        } else {
+                            tasksMarkup = catTasks.map(t => this.renderTaskCardHtml(t)).join('');
+                        }
+
+                        section.innerHTML = `
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between pb-3 border-b border-violet-900/30">
+                                    <div class="flex items-center space-x-2.5">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs shadow-md" style="background-color: ${cat.color}">
+                                            <i class="fa-solid ${cat.icon || 'fa-folder'}"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-bold text-violet-100">${cat.name}</h4>
+                                            <span class="text-[10px] text-violet-400/60">${activeCount} active ${completedCount > 0 ? `· <span class="text-red-400">${completedCount} completed</span>` : ''}</span>
+                                        </div>
+                                    </div>
+                                    <button onclick="app.switchView('${cat.id}')" class="text-xs text-violet-400 hover:text-white px-2.5 py-1 rounded-lg bg-violet-900/30 hover:bg-violet-800/40 border border-violet-500/20 transition-all flex items-center space-x-1">
+                                        <span>Focus View</span>
+                                        <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                                    ${tasksMarkup}
+                                </div>
+                            </div>
+
+                            <div class="pt-3 border-t border-violet-900/20">
+                                <div class="flex items-center space-x-2">
+                                    <input type="text" id="inline-input-${cat.id}" onkeydown="if(event.key==='Enter') app.handleInlineAddTask('${cat.id}')" placeholder="+ Add task to ${cat.name}..." class="w-full glass-input rounded-xl px-3 py-1.5 text-xs text-violet-100 placeholder-violet-400/40">
+                                    <button onclick="app.handleInlineAddTask('${cat.id}')" class="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs transition-all shrink-0">
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+
+                        gridContainer.appendChild(section);
+                    });
+
+                    taskListEl.appendChild(gridContainer);
+
+                    if (totalCount === 0) {
+                        emptyStateEl.classList.remove('hidden');
+                        emptyStateEl.classList.add('flex');
+                    } else {
+                        emptyStateEl.classList.add('hidden');
+                        emptyStateEl.classList.remove('flex');
+                    }
+                } else {
+                    const filtered = this.getFilteredTasks();
+                    if (filtered.length === 0) {
+                        emptyStateEl.classList.remove('hidden');
+                        emptyStateEl.classList.add('flex');
+                    } else {
+                        emptyStateEl.classList.add('hidden');
+                        emptyStateEl.classList.remove('flex');
+
+                        const singleList = document.createElement('div');
+                        singleList.className = 'space-y-3';
+                        filtered.forEach(task => {
+                            singleList.innerHTML += this.renderTaskCardHtml(task);
+                        });
+                        taskListEl.appendChild(singleList);
+                    }
+                }
+
+                this.updateCountsAndStats();
+            }
+
+            updateCountsAndStats() {
+                const todayStr = new Date().toISOString().split('T')[0];
+
+                const pendingTasks = this.tasks.filter(t => !t.completed);
+                const countInbox = pendingTasks.length;
+                const countToday = pendingTasks.filter(t => t.dueDate === todayStr).length;
+                const countUpcoming = pendingTasks.filter(t => t.dueDate && t.dueDate > todayStr).length;
+                const countStarred = pendingTasks.filter(t => t.priority === 'high').length;
+                const countCompleted = this.tasks.filter(t => t.completed).length;
+
+                document.getElementById('count-inbox').innerText = countInbox;
+                document.getElementById('count-today').innerText = countToday;
+                document.getElementById('count-upcoming').innerText = countUpcoming;
+                document.getElementById('count-starred').innerText = countStarred;
+                document.getElementById('count-completed').innerText = countCompleted;
+
+                // Dynamically update category active item badges
+                this.categories.forEach(cat => {
+                    const catCount = pendingTasks.filter(t => t.category === cat.id).length;
+                    const navBadge = document.getElementById(`cat-count-${cat.id}`);
+                    if (navBadge) navBadge.innerText = catCount;
+                    const tabBadge = document.getElementById(`tab-count-${cat.id}`);
+                    if (tabBadge) tabBadge.innerText = catCount;
+                });
+
+                const currentFiltered = this.getFilteredTasks().length;
+                document.getElementById('currentViewBadge').innerText = currentFiltered;
+
+                // Daily Progress Ring Computation
+                const todayTasks = this.tasks.filter(t => t.dueDate === todayStr || t.createdAt.startsWith(todayStr));
+                const totalToday = todayTasks.length;
+                const completedToday = todayTasks.filter(t => t.completed).length;
+
+                const percent = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : (this.tasks.length > 0 ? Math.round((countCompleted / this.tasks.length) * 100) : 0);
+
+                const circle = document.getElementById('sidebarProgressCircle');
+                if (circle) {
+                    const offset = 100 - percent;
+                    circle.setAttribute('stroke-dashoffset', offset);
+                }
+                document.getElementById('sidebarProgressPercent').innerText = `${percent}%`;
+                document.getElementById('sidebarProgressText').innerText = `${completedToday} of ${totalToday || this.tasks.length} done`;
+
+                document.getElementById('taskCompletionCounter').innerText = `${countCompleted} of ${this.tasks.length} Completed`;
+                document.getElementById('footerTaskSummary').innerText = `${countInbox} Pending Tasks`;
+
+                // Update Visual Productivity Progress Dashboard Hub
+                this.updateProgressDashboardHub(countCompleted, countInbox, countStarred, this.tasks.length);
+            }
+
+            updateProgressDashboardHub(doneCount, pendingCount, highPriorityCount, totalCount) {
+                const overallPercent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+                // Update Circular Progress Gauge
+                const hubCircle = document.getElementById('hubCircularProgress');
+                if (hubCircle) {
+                    const offset = 100 - overallPercent;
+                    hubCircle.setAttribute('stroke-dashoffset', offset);
+                }
+                document.getElementById('hubOverallPercent').innerText = `${overallPercent}%`;
+
+                // Update Quick Stat Cards
+                document.getElementById('hubCountDone').innerText = doneCount;
+                document.getElementById('hubCountPending').innerText = pendingCount;
+                document.getElementById('hubCountHigh').innerText = highPriorityCount;
+                document.getElementById('hubCountTotal').innerText = totalCount;
+
+                // Update Productivity Status Label Badge
+                const statusTextEl = document.getElementById('productivityStatusText');
+                if (statusTextEl) {
+                    if (totalCount === 0) {
+                        statusTextEl.innerText = "Ready to Begin 🌱";
+                    } else if (overallPercent === 100) {
+                        statusTextEl.innerText = "Mastery Achieved! 🎉";
+                    } else if (overallPercent >= 75) {
+                        statusTextEl.innerText = "Peak Momentum ⚡";
+                    } else if (overallPercent >= 50) {
+                        statusTextEl.innerText = "Steady Flow 🌊";
+                    } else if (overallPercent > 0) {
+                        statusTextEl.innerText = "In Motion 🌱";
+                    } else {
+                        statusTextEl.innerText = "Focus Mode On 🎯";
+                    }
+                }
+
+                // Update Main Bottom Horizontal Progress Bar
+                const hubProgressBar = document.getElementById('hubOverallProgressBar');
+                if (hubProgressBar) {
+                    hubProgressBar.style.width = `${overallPercent}%`;
+                }
+                document.getElementById('hubProgressBarRatio').innerText = `${doneCount} of ${totalCount} tasks done (${overallPercent}%)`;
+
+                // Render Visual Category Progress Fills
+                const categoryBarsList = document.getElementById('categoryProgressBarsList');
+                if (categoryBarsList) {
+                    categoryBarsList.innerHTML = '';
+
+                    this.categories.forEach(cat => {
+                        const catTasks = this.tasks.filter(t => t.category === cat.id);
+                        const catDone = catTasks.filter(t => t.completed).length;
+                        const catTotal = catTasks.length;
+                        const catPercent = catTotal > 0 ? Math.round((catDone / catTotal) * 100) : 0;
+
+                        const barItem = document.createElement('div');
+                        barItem.className = 'glass-card p-2.5 rounded-xl space-y-1.5 transition-all hover:border-violet-500/30';
+                        barItem.innerHTML = `
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${cat.color}"></span>
+                                    <span class="font-semibold text-violet-100">${cat.name}</span>
+                                </div>
+                                <div class="flex items-center space-x-2 text-[11px]">
+                                    <span class="text-violet-300/70">${catDone}/${catTotal} done</span>
+                                    <span class="font-bold text-violet-200">${catPercent}%</span>
+                                </div>
+                            </div>
+                            <div class="w-full h-2 rounded-full bg-violet-950/80 overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-700 ease-out" style="width: ${catPercent}%; background-color: ${cat.color}; shadow: 0 0 10px ${cat.color}80"></div>
+                            </div>
+                        `;
+                        categoryBarsList.appendChild(barItem);
+                    });
+                }
+            }
+
+            renderCategoriesNav() {
+                const container = document.getElementById('categoryNavList');
+                const tabsContainer = document.getElementById('categoryTabsContainer');
+                const newTaskSelect = document.getElementById('newTaskCategory');
+                const detailSelect = document.getElementById('detailCategory');
+
+                container.innerHTML = '';
+                if (tabsContainer) tabsContainer.innerHTML = '';
+                if (newTaskSelect) newTaskSelect.innerHTML = '';
+                if (detailSelect) detailSelect.innerHTML = '';
+
+                this.categories.forEach(cat => {
+                    const count = this.tasks.filter(t => t.category === cat.id && !t.completed).length;
+
+                    const catBtn = document.createElement('button');
+                    catBtn.onclick = () => this.switchView(cat.id);
+                    catBtn.id = `nav-${cat.id}`;
+                    catBtn.className = `nav-item w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium transition-all text-violet-300/80 hover:bg-violet-900/20 hover:text-violet-100`;
+                    catBtn.innerHTML = `
+                        <div class="flex items-center space-x-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${cat.color}"></span>
+                            <span>${cat.name}</span>
+                        </div>
+                        <span id="cat-count-${cat.id}" class="text-[10px] px-2 py-0.5 rounded-full bg-violet-950/80 text-violet-400">${count}</span>
+                    `;
+                    container.appendChild(catBtn);
+
+                    if (tabsContainer) {
+                        const tabBtn = document.createElement('button');
+                        tabBtn.onclick = () => this.switchView(cat.id);
+                        tabBtn.id = `tab-${cat.id}`;
+                        tabBtn.className = `category-tab shrink-0 px-3.5 py-1.5 rounded-xl border border-violet-900/30 bg-violet-950/40 text-violet-300/70 hover:text-violet-100 hover:bg-violet-900/30 transition-all flex items-center space-x-2`;
+                        tabBtn.innerHTML = `
+                            <i class="fa-solid ${cat.icon || 'fa-folder'} text-[11px]" style="color: ${cat.color}"></i>
+                            <span>${cat.name}</span>
+                            <span id="tab-count-${cat.id}" class="text-[10px] px-1.5 py-0.2 rounded-full bg-violet-900/60 text-violet-300 font-semibold">${count}</span>
+                        `;
+                        tabsContainer.appendChild(tabBtn);
+                    }
+
+                    if (newTaskSelect) {
+                        const opt = document.createElement('option');
+                        opt.value = cat.id;
+                        opt.className = 'bg-violet-950 text-violet-100';
+                        opt.innerText = cat.name;
+                        newTaskSelect.appendChild(opt);
+                    }
+                    if (detailSelect) {
+                        const opt = document.createElement('option');
+                        opt.value = cat.id;
+                        opt.className = 'bg-violet-950 text-violet-100';
+                        opt.innerText = cat.name;
+                        detailSelect.appendChild(opt);
+                    }
+                });
+            }
+
+            promptAddCategory() {
+                const name = prompt('Enter new Category Name:');
+                if (name && name.trim()) {
+                    this.recordState(`Added Category: "${name.trim()}"`);
+
+                    const colors = ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#3B82F6', '#6366F1', '#F43F5E'];
+                    const icons = ['fa-briefcase', 'fa-book', 'fa-star', 'fa-heart', 'fa-rocket', 'fa-bolt'];
+                    const newCat = {
+                        id: 'cat-' + Date.now(),
+                        name: name.trim(),
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        icon: icons[Math.floor(Math.random() * icons.length)]
+                    };
+                    this.categories.push(newCat);
+                    this.saveToStorage();
+                    this.renderCategoriesNav();
+                    this.playClickSound();
+                    this.render();
+                }
+            }
+
+            openFocusMode() {
+                document.getElementById('focusModal').classList.remove('hidden');
+                this.playClickSound();
+
+                if (this.activeDetailTaskId) {
+                    const task = this.tasks.find(t => t.id === this.activeDetailTaskId);
+                    if (task) {
+                        document.getElementById('focusTaskTitle').innerText = task.title;
+                    }
+                } else {
+                    document.getElementById('focusTaskTitle').innerText = "Mindful Focus Session";
+                }
+            }
+
+            closeFocusMode() {
+                document.getElementById('focusModal').classList.add('hidden');
+                this.pauseFocusTimer();
+                this.stopFocusSound();
+            }
+
+            launchTaskFocus() {
+                this.closeDetailDrawer();
+                this.openFocusMode();
+            }
+
+            toggleFocusTimer() {
+                if (this.isFocusRunning) {
+                    this.pauseFocusTimer();
+                } else {
+                    this.startFocusTimer();
+                }
+            }
+
+            startFocusTimer() {
+                this.isFocusRunning = true;
+                document.getElementById('focusStartIcon').className = 'fa-solid fa-pause';
+                document.getElementById('focusStartText').innerText = 'Pause';
+                this.playClickSound();
+
+                this.focusTimer = setInterval(() => {
+                    if (this.focusSecondsLeft > 0) {
+                        this.focusSecondsLeft--;
+                        this.updateFocusTimerUI();
+                    } else {
+                        this.pauseFocusTimer();
+                        this.playCompleteSound();
+                        this.triggerConfetti();
+                        alert('Focus session completed! Take a mindful break.');
+                    }
+                }, 1000);
+            }
+
+            pauseFocusTimer() {
+                this.isFocusRunning = false;
+                if (this.focusTimer) clearInterval(this.focusTimer);
+                document.getElementById('focusStartIcon').className = 'fa-solid fa-play';
+                document.getElementById('focusStartText').innerText = 'Start Focus';
+            }
+
+            resetFocusTimer() {
+                this.pauseFocusTimer();
+                this.focusSecondsLeft = 25 * 60;
+                this.updateFocusTimerUI();
+                this.playClickSound();
+            }
+
+            updateFocusTimerUI() {
+                const mins = Math.floor(this.focusSecondsLeft / 60);
+                const secs = this.focusSecondsLeft % 60;
+                const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                document.getElementById('focusTimeDisplay').innerText = timeStr;
+
+                const circle = document.getElementById('focusTimerCircle');
+                if (circle) {
+                    const percent = (this.focusSecondsLeft / this.focusTotalSeconds) * 100;
+                    const offset = 100 - percent;
+                    circle.setAttribute('stroke-dashoffset', offset);
+                }
+            }
+
+            toggleFocusSound() {
+                if (this.isFocusSoundOn) {
+                    this.stopFocusSound();
+                } else {
+                    this.startFocusSound();
+                }
+            }
+
+            startFocusSound() {
+                try {
+                    this.initAudio();
+                    if (!this.audioCtx) return;
+
+                    const bufferSize = this.audioCtx.sampleRate * 2;
+                    const noiseBuffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+
+                    const whiteNoise = this.audioCtx.createBufferSource();
+                    whiteNoise.buffer = noiseBuffer;
+                    whiteNoise.loop = true;
+
+                    const filter = this.audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 400;
+
+                    const gain = this.audioCtx.createGain();
+                    gain.gain.value = 0.03;
+
+                    whiteNoise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+
+                    whiteNoise.start();
+                    this.focusAudioOscillator = whiteNoise;
+                    this.isFocusSoundOn = true;
+
+                    document.getElementById('focusSoundBtn').classList.add('text-violet-400', 'border-violet-500');
+                } catch (e) {}
+            }
+
+            stopFocusSound() {
+                if (this.focusAudioOscillator) {
+                    this.focusAudioOscillator.stop();
+                    this.focusAudioOscillator = null;
+                }
+                this.isFocusSoundOn = false;
+                document.getElementById('focusSoundBtn').classList.remove('text-violet-400', 'border-violet-500');
+            }
+
+            openStatsModal() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(t => t.completed).length;
+                const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                document.getElementById('statTotalCompleted').innerText = completed;
+                document.getElementById('statCompletionRate').innerText = `${rate}%`;
+                document.getElementById('statActiveTasks').innerText = total - completed;
+
+                const catStatsList = document.getElementById('categoryStatsList');
+                catStatsList.innerHTML = '';
+
+                this.categories.forEach(cat => {
+                    const catTasks = this.tasks.filter(t => t.category === cat.id);
+                    const catDone = catTasks.filter(t => t.completed).length;
+                    const catTotal = catTasks.length;
+                    const catRate = catTotal > 0 ? Math.round((catDone / catTotal) * 100) : 0;
+
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between text-xs py-1';
+                    row.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>
+                            <span class="text-violet-200">${cat.name}</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-violet-400">${catDone}/${catTotal}</span>
+                            <span class="font-semibold text-violet-300 w-10 text-right">${catRate}%</span>
+                        </div>
+                    `;
+                    catStatsList.appendChild(row);
+                });
+
+                document.getElementById('statsModal').classList.remove('hidden');
+                this.playClickSound();
+            }
+
+            closeStatsModal() {
+                document.getElementById('statsModal').classList.add('hidden');
+            }
+
+            handleSearch() {
+                this.searchQuery = document.getElementById('searchInput').value.trim();
+                const clearBtn = document.getElementById('clearSearchBtn');
+                if (this.searchQuery) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+                this.render();
+            }
+
+            clearSearch() {
+                document.getElementById('searchInput').value = '';
+                this.searchQuery = '';
+                document.getElementById('clearSearchBtn').classList.add('hidden');
+                this.render();
+            }
+
+            handleSortChange() {
+                this.sortBy = document.getElementById('sortBySelect').value;
+                this.render();
+            }
+
+            toggleMobileSidebar() {
+                document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            }
+
+            startLiveClock() {
+                const updateClock = () => {
+                    const now = new Date();
+                    const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    document.getElementById('liveClockDisplay').innerText = now.toLocaleDateString(undefined, options);
+
+                    const hour = now.getHours();
+                    let greeting = "Good Day, Creator ✨";
+                    if (hour < 12) greeting = "Good Morning, Creator 🌅";
+                    else if (hour < 18) greeting = "Good Afternoon, Creator ☀️";
+                    else greeting = "Good Evening, Creator 🌙";
+
+                    document.getElementById('greetingHeading').innerText = greeting;
+                };
+                updateClock();
+                setInterval(updateClock, 30000);
+            }
+
+            initConfettiCanvas() {
+                this.canvas = document.getElementById('confettiCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+
+            resizeCanvas() {
+                if (this.canvas) {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                }
+            }
+
+            triggerConfetti() {
+                const colors = ['#8B5CF6', '#A78BFA', '#C4B5FD', '#EC4899', '#10B981', '#F59E0B', '#F43F5E'];
+                for (let i = 0; i < 40; i++) {
+                    this.particles.push({
+                        x: window.innerWidth / 2,
+                        y: window.innerHeight / 2,
+                        vx: (Math.random() - 0.5) * 12,
+                        vy: (Math.random() - 0.5) * 12 - 4,
+                        size: Math.random() * 6 + 4,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        alpha: 1,
+                        decay: Math.random() * 0.02 + 0.015
+                    });
+                }
+                if (!this.animatingConfetti) {
+                    this.animatingConfetti = true;
+                    requestAnimationFrame(() => this.animateConfetti());
+                }
+            }
+
+            animateConfetti() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                this.particles.forEach((p, index) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.2;
+                    p.alpha -= p.decay;
+
+                    this.ctx.save();
+                    this.ctx.globalAlpha = Math.max(0, p.alpha);
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+
+                    if (p.alpha <= 0) {
+                        this.particles.splice(index, 1);
+                    }
+                });
+
+                if (this.particles.length > 0) {
+                    requestAnimationFrame(() => this.animateConfetti());
+                } else {
+                    this.animatingConfetti = false;
+                }
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                        const activeEl = document.activeElement;
+                        const tag = activeEl ? activeEl.tagName.toLowerCase() : '';
+                        if ((tag === 'input' || tag === 'textarea') && activeEl.value.length > 0) {
+                            return;
+                        }
+                        e.preventDefault();
+                        this.undo();
+                    }
+
+                    if (e.key === 'Escape') {
+                        this.closeDetailDrawer();
+                        this.closeFocusMode();
+                        this.closeStatsModal();
+                    }
+                });
+            }
+        }
+
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new AuraTodoApp();
+        });
+    </script>
+</body>
+</html>

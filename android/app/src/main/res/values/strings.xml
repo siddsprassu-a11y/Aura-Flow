@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AuraFlow</string>
+    <string name="title_activity_main">AuraFlow</string>
+    <string name="package_name">com.prasanth.auraflow</string>
+    <string name="custom_url_scheme">com.prasanth.auraflow</string>
+</resources>
