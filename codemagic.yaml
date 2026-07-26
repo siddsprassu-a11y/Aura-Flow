@@ -1,16 +1,19 @@
 workflows:
   android-workflow:
     name: Android Build
-    max_build_duration: 60
 
     environment:
-      vars:
-        PACKAGE_NAME: "com.auraflow.app"
+      node: latest
 
     scripts:
       - name: Install dependencies
         script: |
           npm install
+
+      - name: Give execute permission
+        script: |
+          chmod +x node_modules/.bin/cap
+          chmod +x android/gradlew
 
       - name: Sync Capacitor
         script: |
@@ -22,4 +25,4 @@ workflows:
           ./gradlew assembleDebug
 
     artifacts:
-      - android/app/build/outputs/**/*.apk
+      - android/app/build/outputs/apk/debug/app-debug.apk
