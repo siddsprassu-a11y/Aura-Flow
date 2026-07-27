@@ -28,8 +28,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Verify Capacitor installation
+        run: |
+          node -v
+          npm -v
+          npm list @capacitor/cli
+          ls node_modules
+          ls node_modules/@capacitor || true
+          npx cap --version
+
       - name: Sync Capacitor
-        run: node node_modules/@capacitor/cli/bin/cap.js sync android
+        run: npx cap sync android
 
       - name: Make Gradle executable
         run: chmod +x android/gradlew
